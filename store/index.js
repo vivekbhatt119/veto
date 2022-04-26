@@ -4,6 +4,9 @@ export const state = () => ({
         currentProduct: null,
         currentCustomer: null,
         customerToken: null,
+        message: [],
+        cartId: null,
+        cart: null,
     }
 })
 
@@ -20,8 +23,28 @@ export const mutations = {
     setCustomerToken(state, token) {
         state.registry.customerToken = token
     },
+    setCartId(state, id) {
+        state.registry.cartId = id
+    },
+    setCart(state, cart) {
+        state.registry.cart = cart
+    },
+    unsetCart(state, cart) {
+        state.registry.cart = null
+    },
+    addErrorMessage(state, msg) {
+        state.registry.message.push({type: 'danger', msg: msg})
+    },
+    addSuccessMessage(state, msg) {
+        state.registry.message.push({type: 'success', msg: msg})
+    },
+    renderedMessage(state) {
+        state.registry.message = []
+    },
     logout(state) {
         state.registry.currentCustomer = null;
         state.registry.customerToken = null;
+        state.registry.cartId = null;
+        state.registry.cart = null;
     }
 }

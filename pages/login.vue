@@ -52,6 +52,7 @@
 </template>
 
 <script>
+import payload from '../payload';
 export default {
     data() {
         return {
@@ -64,6 +65,12 @@ export default {
         customer() {
             return this.$store.state.registry.currentCustomer;
         },
+        cart() {
+            return this.$store.state.registry.cart;
+        },
+        cartId() {
+            return this.$store.state.registry.cartId;
+        }
     },
     created() {
         if (!(null === this.customer)) {
@@ -89,10 +96,7 @@ export default {
                             }
                         }
                     `
-                },
-                headers: {
-                    Authorization: `Bearer 2ic383bgxtr97q8s0y0bq99q55vaelg4`,
-                },
+                }
             }).then((res) => {
                 if (res.data.hasOwnProperty('errors')) {
                     alert (res.data.errors[0]['message']);
@@ -103,7 +107,7 @@ export default {
                 this.getCustomer(token);
             })
             .catch(err => {
-                console.log(err.message);
+                this.$store.commit("addErrorMessage", err.message);
             });
             return;
         },
@@ -146,7 +150,75 @@ export default {
             });
 
             this.$store.commit("setCurrentCustomer", customer.data.data.customer);
+            this.getCustomerCart();
             this.$router.push({ name: 'home', query: { redirect: '/' } });
+        },
+        async getCustomerCart() {
+            await this.$axios({
+                method: 'post',
+                url: this.$axios.defaults.baseURL,
+                data: {
+                    query: payload.customerCart()
+                },
+                headers: {
+                    Authorization: `Bearer ${this.$store.state.registry.customerToken}`,
+                },
+            }).then((res) => {
+                if (res.data.hasOwnProperty('errors')) {
+                    this.$store.commit("addErrorMessage", res.data.errors[0]['message']);
+                    return;
+                }
+                // if guest cart available
+                if (this.cart || this.cartId) {
+                    if (!this.cart) {
+                        // load cart with this.cartId
+                    }
+                    // if items.length then merge guest cart with customerCart
+                    if (this.cart.items.length) {
+                        this.mergeCart(res.data.data.customerCart.id);
+                    }
+                }
+                if (!this.cartId) {
+                    this.$store.commit("setCart", res.data.data.customerCart);
+                    this.$store.commit("setCartId", res.data.data.customerCart.id);
+                }
+            })
+            .catch(err => {
+                this.$store.commit("addErrorMessage", err.message);
+            });
+            return null;
+        },
+        async mergeCart(destinationCartId) {
+            await this.$axios({
+                method: 'post',
+                url: this.$axios.defaults.baseURL,
+                data: {
+                    query: `
+                    mutation {
+                        mergeCarts(
+                            source_cart_id: "${this.cartId}",
+                            destination_cart_id: "${destinationCartId}"
+                        ) {
+                            ${payload.commonCart()}
+                        }
+                    }
+                    `
+                },
+                headers: {
+                    Authorization: `Bearer ${this.$store.state.registry.customerToken}`,
+                },
+            }).then((res) => {
+                if (res.data.hasOwnProperty('errors')) {
+                    this.$store.commit("addErrorMessage", res.data.errors[0]['message']);
+                    return;
+                }
+                this.$store.commit("setCart", res.data.data.mergeCarts);
+                this.$store.commit("setCartId", res.data.data.mergeCarts.id);
+            })
+            .catch(err => {
+                this.$store.commit("addErrorMessage", err.message);
+            });
+            return null;
         },
         onReset(event) {
             event.preventDefault()

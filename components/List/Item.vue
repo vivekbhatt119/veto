@@ -11,16 +11,17 @@
           <p>{{ product.name }}</p>
           <price :product="product"/>
         </b-card-text>
-        <b-button :to="'/p/' + product.sku + '/' + product.url_key + product.url_suffix" variant="primary">Add To Cart</b-button>
+        <add-to-cart :product="product" />
       </b-card-body>
     </b-card>
   </div>
 </template>
 
 <script>
+import AddToCart from '../AddToCart.vue';
 import Price from '../ProductRenderer/Price.vue'
 export default {
-  components: { Price },
+  components: { Price, AddToCart },
   props: {
     product: {
       type: Object,

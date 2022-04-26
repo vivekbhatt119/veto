@@ -1,3 +1,5 @@
+import payload from "../payload";
+
 export default async function ({ store, route, redirect, $axios }) {
     let url = route.fullPath;
     url = url.replace('/c/', '');
@@ -6,23 +8,15 @@ export default async function ({ store, route, redirect, $axios }) {
             method: 'post',
             url: $axios.defaults.baseURL,
             data: {
-            query: `
-            {
-                urlResolver(url: "${url}") {
-                entity_uid
-                relative_url
-                redirectCode
-                type
-                }
-            }
-            `,
+            query: payload.urlResolver(url),
             },
         });
         if (response.data.errors) {
-            console.log(response.data.errors);
+            store.commit("addErrorMessage", response.data.errors[0]['message']);
             return redirect('/');
         }
         if (!response.data.data.urlResolver) {
+            store.commit("addErrorMessage", "URL was not found.");
             return redirect('/');
         }
 
@@ -31,37 +25,12 @@ export default async function ({ store, route, redirect, $axios }) {
             method: 'post',
             url: $axios.defaults.baseURL,
             data: {
-            query: `
-            {
-                categories(
-                  filters: {
-                    category_uid: {eq: "${id}"}
-                  }
-                ) {
-                    total_count
-                    items {
-                        uid
-                        level
-                        name
-                        meta_title
-                        meta_keywords
-                        meta_description
-                        children_count
-                        children {
-                            uid
-                            level
-                            name
-                            path
-                        }
-                    }
-                }
-            }
-            `,
+            query: payload.categories(id),
             },
         });
 
         if (category.data.errors) {
-            console.log(category.data.errors);
+            store.commit("addErrorMessage", category.data.errors);
             return redirect('/');
         }
         if (!category.data.data.categories) {
@@ -74,6 +43,7 @@ export default async function ({ store, route, redirect, $axios }) {
         store.commit("setCurrentCategory", category.data.data.categories.items[0]);
     } catch(exception) {
         console.log(exception);
+        store.commit("addErrorMessage", "something went wrong");
         return redirect('/');
     }
 }

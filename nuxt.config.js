@@ -53,7 +53,7 @@ export default {
     publicPath: "/assets/"
   },
   router: {
-    // middleware: ['urlResolver'],
+    middleware: ['trailingSlashRedirect'],
     trailingSlash: false,
     prefetchLinks: false,
     extendRoutes(routes) {

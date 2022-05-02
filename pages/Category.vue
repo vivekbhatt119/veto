@@ -5,6 +5,38 @@
                 <h2>{{ category.name }}</h2>
             </b-col>
         </b-row>
+        <b-row>
+            <b-col v-if="products.hasOwnProperty('aggregations')">
+                <b-navbar toggleable="lg" type="dark" variant="info">
+                    <b-navbar-brand href="#">Filter</b-navbar-brand>
+
+                    <b-navbar-toggle target="filter-collapse"></b-navbar-toggle>
+
+                    <b-collapse id="filter-collapse" is-nav>
+                        <b-navbar-nav v-if="category.children_count != 0">
+                            <b-nav-item
+                                v-for="child in category.children"
+                                :to="'/c/' + child.url_path + child.url_suffix"
+                                :key="child.uid"
+                                >
+                                {{ child.name }}
+                            </b-nav-item>
+                        </b-navbar-nav>
+
+                        <!-- Right aligned nav items -->
+                        <b-navbar-nav class="ml-auto">
+                            <b-nav-form>
+                                <b-button size="sm" variant="dark" v-b-modal.my-modal>More</b-button>
+                            </b-nav-form>
+                        </b-navbar-nav>
+                    </b-collapse>
+                </b-navbar>
+                
+                <b-modal size="xl" id="my-modal" hide-footer scrollable title="Filter">
+                    <filter-renderer :aggregations="aggregations" @apply-filter="applyFilter" />
+                </b-modal>
+            </b-col>
+        </b-row>
         <div class="row">
             <Item v-for="product in products.items" :key="product.sku" :product="product" />
             <template v-if="isLoading">
@@ -33,8 +65,9 @@
 <script>
 import Item from '../components/List/Item.vue';
 import BlankItem from '../components/List/BlankItem.vue';
+import FilterRenderer from '../components/List/FilterRenderer.vue';
 export default {
-  components: { Item, BlankItem },
+  components: { Item, BlankItem, FilterRenderer },
     middleware: ["category"],
     name: "Category",
     data() {
@@ -43,12 +76,25 @@ export default {
             isLoading: true,
             currentPage: 1,
             pageSize: 10,
+            filter: {
+                "category_uid": {
+                    "in": [this.$store.state.registry.currentCategory.uid]
+                }
+            },
         };
     },
     async created() {
-       this.getProducts();
+        this.getProducts();
     },
     methods: {
+        applyFilter(filter) {
+            if (filter.hasOwnProperty('category_uid')) {
+                filter.category_uid.in.push(this.$store.state.registry.currentCategory.uid);
+            } else {
+                filter.category_uid = {"in": [this.$store.state.registry.currentCategory.uid]};
+            }
+            this.filter = filter;
+        },
         async getProducts() {
             this.products = {
                 total_count: 0,
@@ -64,17 +110,13 @@ export default {
                 method: "post",
                 url: this.$axios.defaults.baseURL,
                 data: {
-                    query: `
+                    query: `query($filter: ProductAttributeFilterInput!, $pageSize: Int!, $currentPage: Int!)
                     {
                         products(
-                            pageSize: ${this.pageSize},
-                            currentPage: ${this.currentPage},
+                            pageSize: $pageSize,
+                            currentPage: $currentPage,
                             search: "",
-                            filter: {
-                                category_uid: {
-                                    in: ["${this.category.uid}"]
-                                },
-                            },
+                            filter: $filter,
                             sort: {},
                         ) {
                             aggregations {
@@ -131,6 +173,11 @@ export default {
                             }
                         }
                     `,
+                    variables: {
+                        "filter": this.filter,
+                        "pageSize": this.pageSize,
+                        "currentPage": this.currentPage
+                    }
                 },
             });
             this.products = products.data.data.products;
@@ -141,6 +188,11 @@ export default {
         category() {
             return this.$store.state.registry.currentCategory;
         },
+        aggregations() {
+            if (this.products.hasOwnProperty('aggregations')) {
+                return this.products.aggregations.filter(x=>(x.attribute_code != 'category_id'))
+            }
+        }
     },
     head() {
         return {
@@ -155,6 +207,10 @@ export default {
     },
     watch: {
         currentPage() {
+            window.scrollTo(0,0);
+            this.getProducts()
+        },
+        filter() {
             window.scrollTo(0,0);
             this.getProducts()
         }

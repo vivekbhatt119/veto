@@ -33,10 +33,10 @@
         </b-row>
         <b-row class="mt-5">
             <b-col lg="4" cols="6">
-                <qty-box :qty="qty"/>
+                <qty-box :qty="qty" @qty-change="updateQty"/>
             </b-col>
             <b-col lg="8">
-                <b-button squared variant="outline-primary" block>Add To Cart</b-button>
+                <add-to-cart :qty="qty" :product="product" :selectedConfig="selectedConfig" :forceStop="forceStop"/>
             </b-col>
         </b-row>
     </b-col>
@@ -48,12 +48,14 @@ import Price from './Price.vue'
 import ImageGallery from './ImageGallery.vue'
 import Configuration from './Configuration.vue'
 import QtyBox from './QtyBox.vue'
+import AddToCart from '../AddToCart.vue'
 export default {
-  components: { Price, ImageGallery, Configuration, QtyBox },
+  components: { Price, ImageGallery, Configuration, QtyBox, AddToCart },
     data() {
         return {
             variant: {},
             qty: 1,
+            selectedConfig: []
         }
     },
     props: {
@@ -63,6 +65,12 @@ export default {
         }
     },
     computed: {
+        forceStop() {
+            if (this.isConfigurable) {
+                return !(this.product.configurable_options.length == this.selectedConfig.length);
+            }
+            return false;
+        },
         isConfigurable() {
             return this.product.hasOwnProperty("configurable_options");
         },
@@ -75,15 +83,16 @@ export default {
     },
     methods: {
         configChange(data) {
+            this.selectedConfig = Object.values(data);
             this.product.variants.forEach(element => {
                 let total = 0
                 let selected = 0;
                 element.attributes.forEach(attribute => {
                     if (data.hasOwnProperty(attribute.code)) {
                         total++;
-                    }
-                    if (data.hasOwnProperty(attribute.code) && data[attribute.code] == attribute.uid) {
-                        selected++;
+                        if (data[attribute.code] == attribute.uid) {
+                            selected++;
+                        }
                     }
                 });
                 if (selected == total) {
@@ -92,6 +101,9 @@ export default {
                     return false;
                 }
             });
+        },
+        updateQty(qty) {
+            this.qty = qty
         }
     },
 }

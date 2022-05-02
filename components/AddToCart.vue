@@ -1,24 +1,38 @@
 <template>
-  <div>
-      <b-button @click="addProduct" variant="primary">Add To Cart</b-button>
-  </div>
+    <div>
+        <b-button @click="addProduct" squared variant="outline-primary" block :disabled="adding ? true : false">
+            {{ adding ? 'Adding..' : 'Add To Cart'}}
+        </b-button>
+    </div>
 </template>
 
 <script>
 import payload from '../payload';
 export default {
+    data() {
+        return {
+            adding: false,
+        }
+    },
     props: {
         product: {
             type: Object,
             required: true
         },
-        parentProduct: {
-            type: Object,
+        selectedConfig: {
+            type: Array,
+            default() {
+                return [];
+            },
             required: false
         },
         qty: {
             type: Number,
             default: 1
+        },
+        forceStop: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
@@ -74,14 +88,18 @@ export default {
             return;
         },
         async addProduct() {
-            if (this.product.hasOwnProperty('configurable_options') && !this.parentProduct) {
+            if (this.forceStop) {
+                return;
+            }
+            if (this.product.hasOwnProperty('configurable_options') && !this.selectedConfig.length) {
                 return this.$router.push('/p/' + this.product.sku + '/' + this.product.url_key + this.product.url_suffix);
             }
+            this.adding = true;
             if (!(this.cart && this.cartId)) {
                 await this.createGuestCart();
             }
             // add product to cart
-            const config = this.parentProduct ? 'parent_sku: ' + this.parentProduct.sku : '';
+            const config = this.selectedConfig.length ? 'selected_options: ["' + this.selectedConfig.join('","') + '"]' : '';
             await this.$axios({
                 method: 'post',
                 url: this.$axios.defaults.baseURL,
@@ -116,6 +134,7 @@ export default {
                     this.$store.commit("addErrorMessage", res.data.errors[0]['message']);
                     return;
                 }
+                this.$store.commit("addSuccessMessage", this.product.name + " has been added to the cart.");
                 this.$store.commit("setCart", res.data.data.addProductsToCart.cart);
             })
             .catch(err => {
@@ -124,6 +143,7 @@ export default {
                 }
                 this.$store.commit("addErrorMessage", err.message);
             });
+            this.adding = false;
             return;
         }
     }

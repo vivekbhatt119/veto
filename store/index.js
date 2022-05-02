@@ -7,6 +7,7 @@ export const state = () => ({
         message: [],
         cartId: null,
         cart: null,
+        fullScreenLoading: false,
     }
 })
 
@@ -37,6 +38,12 @@ export const mutations = {
     },
     addSuccessMessage(state, msg) {
         state.registry.message.push({type: 'success', msg: msg})
+    },
+    loadingStart(state) {
+        state.registry.fullScreenLoading = true;
+    },
+    loadingStop(state) {
+        state.registry.fullScreenLoading = false;
     },
     renderedMessage(state) {
         state.registry.message = []

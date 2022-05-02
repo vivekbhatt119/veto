@@ -17,15 +17,13 @@
                         <b-col>
                             <table class="table b-table" role="table">
                                 <tr v-for="item in cart.items" :key="item.uid" >
-                                    <td>
-                                        <img height="100" :src="item.product.thumbnail.url"/>
-                                    </td>
                                     <configurable :item="item" v-if="isConfigurable(item)"/>
                                     <simple :item="item" v-else/>
                                     <td>
-                                        {{item.quantity}}
+                                        <qty-box :qty="item.quantity" :uid="item.uid" @qty-change="updateItem" />
                                     </td>
                                     <td>
+                                        {{item.prices.price.currency}}
                                         {{item.prices.price.value}}
                                     </td>
                                     <td>
@@ -92,11 +90,11 @@
 <script>
 import Configurable from '../components/CartItems/Configurable.vue';
 import Simple from '../components/CartItems/Simple.vue';
+import QtyBox from '../components/ProductRenderer/QtyBox.vue';
 import payload from '../payload';
 export default {
-  components: { Simple, Configurable },
+  components: { Simple, Configurable, QtyBox },
     computed: {
-   
         cart() {
             return this.$store.state.registry.cart;
         },
@@ -117,6 +115,7 @@ export default {
             if (!confirm("Are you sure?")) {
                 return;
             }
+            this.$store.commit("loadingStart");
             await this.$axios({
                 method: 'post',
                 url: this.$axios.defaults.baseURL,
@@ -155,6 +154,57 @@ export default {
                     this.getCart();
                 }
                 this.$store.commit("addErrorMessage", err.message);
+            }).finally(() => {
+                this.$store.commit("loadingStop");
+            });
+        },
+        async updateItem(qty, uid) {
+            this.$store.commit("loadingStart");
+            await this.$axios({
+                method: 'post',
+                url: this.$axios.defaults.baseURL,
+                data: {
+                    query: `
+                        mutation {
+                            updateCartItems(
+                                input: {
+                                    cart_id: "${this.cartId}",
+                                    cart_items: [
+                                        {
+                                            cart_item_uid: "${uid}"
+                                            quantity: ${qty}
+                                        }
+                                    ]
+                                }
+                            )
+                            {
+                                cart {
+                                    ${payload.commonCart()}
+                                }
+                            }
+                        }
+                    `
+                },
+                headers: {
+                    Authorization: `Bearer ${this.$store.state.registry.customerToken}`,
+                }
+            }).then((res) => {
+                if (res.data.hasOwnProperty('errors')) {
+                    if(this.cartId && !this.cart) {
+                        this.getCart();
+                    }
+                    this.$store.commit("addErrorMessage", res.data.errors[0]['message']);
+                    return;
+                }
+                this.$store.commit("setCart", res.data.data.updateCartItems.cart);
+            })
+            .catch(err => {
+                if(this.cartId && !this.cart) {
+                    this.getCart();
+                }
+                this.$store.commit("addErrorMessage", err.message);
+            }).finally(() => {
+                this.$store.commit("loadingStop");
             });
         }
     }

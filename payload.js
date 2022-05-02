@@ -76,6 +76,8 @@ export default {
                         level
                         name
                         path
+                        url_path
+                        url_suffix
                     }
                 }
             }
@@ -278,6 +280,8 @@ export default {
                     configurable_options {
                         value_label
                         option_label
+                        configurable_product_option_value_uid
+                        configurable_product_option_uid
                     }
                 }
                 prices {
@@ -286,6 +290,7 @@ export default {
                     }
                     price {
                         value
+                        currency
                     }
                     discounts {
                         label
@@ -300,6 +305,22 @@ export default {
                     thumbnail {
                         label
                         url
+                    }
+                    ... on ConfigurableProduct {
+                        variants {
+                            attributes {
+                                code
+                                label
+                                uid
+                                value_index
+                            }
+                            product {
+                                thumbnail {
+                                    url
+                                    label
+                                }
+                            }
+                        }
                     }
                 }
             }

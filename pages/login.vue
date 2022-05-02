@@ -82,6 +82,7 @@ export default {
             if(!(this.username && this.password)) {
                 return null;
             }
+            this.$store.commit("loadingStart");
             await this.$axios({
                 method: "post",
                 url: this.$axios.defaults.baseURL,
@@ -108,10 +109,13 @@ export default {
             })
             .catch(err => {
                 this.$store.commit("addErrorMessage", err.message);
+            }).finally(() => {
+                this.$store.commit("loadingStop");
             });
             return;
         },
         async getCustomer(token) {
+            this.$store.commit("loadingStart");
             const customer = await this.$axios({
                 method: "post",
                 url: this.$axios.defaults.baseURL,
@@ -147,6 +151,8 @@ export default {
             .catch(err => {
                 console.log(err.message);
                 return;
+            }).finally(() => {
+                this.$store.commit("loadingStop");
             });
 
             this.$store.commit("setCurrentCustomer", customer.data.data.customer);
@@ -154,6 +160,7 @@ export default {
             this.$router.push({ name: 'home', query: { redirect: '/' } });
         },
         async getCustomerCart() {
+            this.$store.commit("loadingStart");
             await this.$axios({
                 method: 'post',
                 url: this.$axios.defaults.baseURL,
@@ -185,10 +192,13 @@ export default {
             })
             .catch(err => {
                 this.$store.commit("addErrorMessage", err.message);
+            }).finally(() => {
+                this.$store.commit("loadingStop");
             });
             return null;
         },
         async mergeCart(destinationCartId) {
+            this.$store.commit("loadingStart");
             await this.$axios({
                 method: 'post',
                 url: this.$axios.defaults.baseURL,
@@ -217,6 +227,8 @@ export default {
             })
             .catch(err => {
                 this.$store.commit("addErrorMessage", err.message);
+            }).finally(() => {
+                this.$store.commit("loadingStop");
             });
             return null;
         },

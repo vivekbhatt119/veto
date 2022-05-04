@@ -25,24 +25,29 @@
 
                         <!-- Right aligned nav items -->
                         <b-navbar-nav class="ml-auto">
-                            <b-nav-form>
+                            <b-nav-form v-if="aggregations.length">
                                 <b-button size="sm" variant="dark" v-b-modal.my-modal>More</b-button>
                             </b-nav-form>
                         </b-navbar-nav>
                     </b-collapse>
                 </b-navbar>
                 
-                <b-modal size="xl" id="my-modal" hide-footer scrollable title="Filter">
-                    <filter-renderer :aggregations="aggregations" @apply-filter="applyFilter" />
+                <b-modal size="xl" id="my-modal" hide-footer scrollable title="Filter" v-if="aggregations.length">
+                    <filter-renderer
+                        :aggregations="aggregations"
+                        :eqFilter="eqFilter"
+                        :inFilter="inFilter"
+                        :rangeFilter="rangeFilter"
+                        @apply-filter="applyFilter" />
                 </b-modal>
             </b-col>
         </b-row>
-        <div class="row">
+        <div class="row mt-2">
             <Item v-for="product in products.items" :key="product.sku" :product="product" />
             <template v-if="isLoading">
                 <blank-item v-for="i in 10" :key="i"></blank-item>
             </template>
-            <div class="col-sm-12 text-center" v-if="products.total_count == 0">
+            <div class="col-sm-12 text-center" v-if="products.total_count == 0 && !isLoading">
                 No products found
             </div>
         </div>
@@ -63,6 +68,9 @@
 </template>
 
 <script>
+let globalEq = {};
+let globalIn = {};
+let globalRange = {};
 import Item from '../components/List/Item.vue';
 import BlankItem from '../components/List/BlankItem.vue';
 import FilterRenderer from '../components/List/FilterRenderer.vue';
@@ -81,9 +89,15 @@ export default {
                     "in": [this.$store.state.registry.currentCategory.uid]
                 }
             },
+            eqFilter: globalEq,
+            inFilter: globalIn,
+            rangeFilter: globalRange,
         };
     },
     async created() {
+        globalEq = {};
+        globalIn = {};
+        globalRange = {};
         this.getProducts();
     },
     methods: {

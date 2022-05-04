@@ -46,7 +46,7 @@
                     </b-col>
                 </b-row>
           </b-col>
-          <b-col sm="6"> <pre>{{customer}}</pre></b-col>
+          <b-col sm="6"> </b-col>
       </b-row>
   </b-container>
 </template>

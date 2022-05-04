@@ -9,7 +9,7 @@
             <b-card-body>
                 <b-card-text v-if="isEmpty">
                     <b-row>
-                        <b-col><p>There is no item in the cart.</p></b-col>
+                        <b-col class="text-center"><p>There is no item in the cart.</p></b-col>
                     </b-row>
                 </b-card-text>
                 <b-card-text v-else>
@@ -40,7 +40,7 @@
                     </b-row> -->
                 </b-card-text>
             </b-card-body>
-            <b-card-footer>
+            <b-card-footer v-if="!isEmpty">
                 <b-row>
                     <b-col md="6"></b-col>
                     <b-col md="6">

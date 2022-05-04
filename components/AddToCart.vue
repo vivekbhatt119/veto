@@ -131,6 +131,12 @@ export default {
                     if(this.cartId && !this.cart) {
                         this.getCart();
                     }
+                    res.data.errors.forEach(error => {
+                        if (error.extensions.category == 'graphql-authorization') {
+                            this.$store.commit("logout");
+                            return this.addProduct();
+                        }
+                    });
                     this.$store.commit("addErrorMessage", res.data.errors[0]['message']);
                     return;
                 }

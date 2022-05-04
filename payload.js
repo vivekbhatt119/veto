@@ -382,13 +382,6 @@ export default {
                         currency
                     }
                 }
-                cart_items_v2 {
-                    quantity
-                    uid
-                    product {
-                        sku
-                    }
-                }
                 city
                 company
                 country {

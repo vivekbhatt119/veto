@@ -9,7 +9,7 @@
                                 <p class="mb-0">{{layer.label}} </p>
                             </template>
                             <b-card-text>
-                                <b-form-group label="Chose Filter" v-slot="{ ariaDescribedby }">
+                                <b-form-group label="Chose Option" v-slot="{ ariaDescribedby }">
                                     <template v-for="option in layer.options">
                                         <b-form-radio
                                             v-if="getSetting(layer.attribute_code)['input_type'] == 'select'"
@@ -41,17 +41,18 @@
                                             :value="option.value">
                                             {{ (option.label == '1' ? 'Yes' : 'No') + ' (' + option.count + ')' }}
                                         </b-form-radio>
+                                        <b-form-checkbox
+                                            v-if="getSetting(layer.attribute_code)['input_type'] == 'multiselect'"
+                                            @change="changeFilter"
+                                            :key="option.value"
+                                            :aria-describedby="ariaDescribedby"
+                                            :name="layer.attribute_code"
+                                            v-model="inFilter[layer.attribute_code]"
+                                            :value="option.value">
+                                            {{ option.label + ' (' + option.count + ')' }}
+                                        </b-form-checkbox>
                                     </template>
                                 </b-form-group>
-                                <b-form-checkbox-group
-                                    v-if="getSetting(layer.attribute_code)['input_type'] == 'multiselect'"
-                                    @change="changeFilter"
-                                    v-model="inFilter[layer.attribute_code]"
-                                    :options="layer.options"
-                                    value-field="value"
-                                    text-field="label"
-                                    stacked
-                                ></b-form-checkbox-group>
                             </b-card-text>
                         </b-tab>
                     </b-tabs>
@@ -65,16 +66,10 @@
 </template>
 
 <script>
-let globalEq = {};
-let globalIn = {};
-let globalRange = {};
 export default {
     data() {
         return {
             setting: [],
-            eqFilter: globalEq,
-            inFilter: globalIn,
-            rangeFilter: globalRange,
             filter: {},
         }
     },
@@ -82,7 +77,19 @@ export default {
         aggregations: {
             type: Array,
             required: true,
-        }
+        },
+        eqFilter: {
+            type: Object,
+            required: true,
+        },
+        inFilter: {
+            type: Object,
+            required: true,
+        },
+        rangeFilter: {
+            type: Object,
+            required: true,
+        },
     },
     async created() {
         let attributes = [];
@@ -129,9 +136,6 @@ export default {
     },
     methods: {
         changeFilter() {
-            globalEq = this.eqFilter;
-            globalIn = this.inFilter;
-            globalRange = this.rangeFilter;
             let filter = {};
             for(var key in this.inFilter) {
                 if (this.inFilter.hasOwnProperty(key)) {

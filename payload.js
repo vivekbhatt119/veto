@@ -432,8 +432,45 @@ export default {
             }
         `;
     },
-    addProductsToCart() {
+    getCustomer() {
         return `
+        {
+            customer {
+                firstname
+                lastname
+                suffix
+                email
+                is_subscribed
+                addresses {
+                    city
+                    company
+                    country_code
+                    default_billing
+                    default_shipping
+                    extension_attributes {
+                        attribute_code
+                        value
+                    }
+                    fax
+                    firstname
+                    id
+                    lastname
+                    middlename
+                    postcode
+                    prefix
+                    region {
+                        region
+                        region_code
+                        region_id
+                    }
+                    region_id
+                    street
+                    suffix
+                    telephone
+                    vat_id
+                } 
+            }
+        }
         `;
     }
 };

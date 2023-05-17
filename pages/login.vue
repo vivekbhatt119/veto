@@ -6,48 +6,142 @@
             </b-col>
         </b-row>
         <b-row>
-            <b-col sm="6">
-                <b-row>
-                    <b-col>
-                        <h5>Registered Customers</h5>
-                    </b-col>
-                </b-row>
-                <b-row>
-                    <b-col><p>If you have an account, sign in with your email address.</p>
-                        <b-form @submit.prevent="loginCustomer" v-if="show">
-                            <b-form-group
-                                id="email-group"
-                                label="Email address:"
-                                label-for="email"
-                            >
-                                <b-form-input
-                                    id="email"
-                                    v-model="username"
-                                    type="email"
-                                    placeholder="Enter email"
-                                    required
-                                ></b-form-input>
-                            </b-form-group>
-                            <b-form-group
-                                id="password-group"
-                                label="Password:"
-                                label-for="password"
-                            >
-                                <b-form-input
-                                    id="password"
-                                    v-model="password"
-                                    type="password"
-                                    placeholder="Password"
-                                    required
-                                ></b-form-input>
-                            </b-form-group>
-                            <b-button type="submit" variant="primary">Login</b-button>
-                        </b-form>
-                    </b-col>
-                </b-row>
-          </b-col>
-          <b-col sm="6"> </b-col>
-      </b-row>
+            <b-col sm="8" offset-sm="2">
+                <b-card no-body>
+                    <b-tabs card>
+                    <b-tab title="Sign In" active>
+                        <b-card-text>
+                            <b-form @submit.prevent="loginCustomer" v-if="show">
+                                <b-form-group
+                                    id="email-group"
+                                    label="Email address:"
+                                    label-for="email"
+                                >
+                                    <b-form-input
+                                        id="email"
+                                        v-model="username"
+                                        type="email"
+                                        placeholder="Enter email"
+                                        required
+                                    ></b-form-input>
+                                </b-form-group>
+                                <b-form-group
+                                    id="password-group"
+                                    label="Password:"
+                                    label-for="password"
+                                >
+                                    <b-form-input
+                                        id="password"
+                                        v-model="password"
+                                        type="password"
+                                        placeholder="Password"
+                                        required
+                                    ></b-form-input>
+                                </b-form-group>
+                                <div class="text-center">
+                                    <b-button type="submit" variant="primary">Login</b-button>
+                                </div>
+                            </b-form>
+                        </b-card-text>
+                    </b-tab>
+                    <b-tab title="Sign Up">
+                        <b-card-text>
+                            <b-form @submit.prevent="createCustomer" v-if="show">
+                                <b-form-group
+                                    id="firstname-group"
+                                    label="First Name:"
+                                    label-for="firstname"
+                                >
+                                    <b-form-input
+                                        id="firstname"
+                                        v-model="register['firstname']"
+                                        type="text"
+                                        placeholder="Enter First Name"
+                                        :state="Boolean(register.firstname)"
+                                        required
+                                    ></b-form-input>
+                                </b-form-group>
+                                <b-form-group
+                                    id="lastname-group"
+                                    label="Last Name:"
+                                    label-for="lastname"
+                                >
+                                    <b-form-input
+                                        id="lastname"
+                                        v-model="register['lastname']"
+                                        type="text"
+                                        placeholder="Enter Last Name"
+                                        :state="Boolean(register.lastname)"
+                                        required
+                                    ></b-form-input>
+                                </b-form-group>
+                                <b-form-group>
+                                    <b-form-checkbox
+                                        id="newsletter"
+                                        v-model="register.is_subscribed"
+                                        name="newsletter"
+                                        >
+                                        Sign Up for Newsletter
+                                    </b-form-checkbox>
+                                </b-form-group>
+                                <b-form-group
+                                    id="email2-group"
+                                    label="Email address:"
+                                    label-for="email2"
+                                >
+                                    <b-form-input
+                                        id="email2"
+                                        v-model="register['email']"
+                                        type="email"
+                                        placeholder="Enter email"
+                                        :state="Boolean(register.email)"
+                                        required
+                                    ></b-form-input>
+                                </b-form-group>
+                                <b-form-group
+                                    id="password2-group"
+                                    label="Password:"
+                                    label-for="password2"
+                                >
+                                    <b-form-input
+                                        id="password2"
+                                        v-model="register['password']"
+                                        type="password"
+                                        placeholder="Password"
+                                        :state="Boolean(register.password)"
+                                        required
+                                    ></b-form-input>
+                                </b-form-group>
+                                <b-form-group
+                                    id="confirm-group"
+                                    label="Confirm Password:"
+                                    label-for="confirm"
+                                >
+                                    <b-form-input
+                                        id="confirm"
+                                        :state="checkPassword()"
+                                        v-model="confirmPassword"
+                                        type="password"
+                                        placeholder="Confirm Password"
+                                        required
+                                    ></b-form-input>
+                                    <b-form-invalid-feedback :state="checkPassword()">
+                                        Should match with the password.
+                                    </b-form-invalid-feedback>
+                                    <b-form-valid-feedback :state="checkPassword()">
+                                        Looks Good.
+                                    </b-form-valid-feedback>
+                                </b-form-group>
+                                <div class="text-center">
+                                    <b-button type="submit" variant="primary">Register</b-button>
+                                </div>
+                            </b-form>
+                        </b-card-text>
+                    </b-tab>
+                    </b-tabs>
+                </b-card>
+            </b-col>
+        </b-row>
   </b-container>
 </template>
 
@@ -58,7 +152,15 @@ export default {
         return {
             show: true,
             username: null,
-            password: null
+            password: null,
+            confirmPassword: null,
+            register: {
+                "firstname": null,
+                "lastname": null,
+                "email": null,
+                "password": null,
+                "is_subscribed": true,
+            }
         }
     },
     computed: {
@@ -78,6 +180,9 @@ export default {
         }
     },
     methods: {
+        checkPassword() {
+            return this.confirmPassword == this.register.password ? true : false;
+        },
         async loginCustomer() {
             if(!(this.username && this.password)) {
                 return null;
@@ -100,12 +205,57 @@ export default {
                 }
             }).then((res) => {
                 if (res.data.hasOwnProperty('errors')) {
-                    alert (res.data.errors[0]['message']);
+                    this.$store.commit("addErrorMessage", res.data.errors[0]['message']);
                     return;
                 }
                 const token = res.data.data.generateCustomerToken.token;
                 this.$store.commit("setCustomerToken", token);
                 this.getCustomer(token);
+            })
+            .catch(err => {
+                this.$store.commit("addErrorMessage", err.message);
+            }).finally(() => {
+                this.$store.commit("loadingStop");
+            });
+            return;
+        },
+        async createCustomer() {
+            if (!this.checkPassword()) {
+                return;
+            }
+            for(let key in this.register) {
+                if (!this.register[key] && key != 'is_subscribed') {
+                    return;
+                }
+            }
+            this.$store.commit("loadingStart");
+            await this.$axios({
+                method: "post",
+                url: this.$axios.defaults.baseURL,
+                data: {
+                    query: `
+                        mutation ($register: CustomerInput!) {
+                            createCustomer(
+                                input: $register
+                            ) {
+                                customer {
+                                    email
+                                }
+                            }
+                        }
+                    `,
+                    variables: {
+                        "register": this.register
+                    }
+                }
+            }).then((res) => {
+                if (res.data.hasOwnProperty('errors')) {
+                    this.$store.commit("addErrorMessage", res.data.errors[0]['message']);
+                    return;
+                }
+                this.username = this.register.email;
+                this.password = this.register.password;
+                this.loginCustomer();
             })
             .catch(err => {
                 this.$store.commit("addErrorMessage", err.message);
@@ -120,29 +270,7 @@ export default {
                 method: "post",
                 url: this.$axios.defaults.baseURL,
                 data: {
-                    query: `
-                        {
-                            customer {
-                                firstname
-                                lastname
-                                suffix
-                                email
-                                addresses {
-                                    firstname
-                                    lastname
-                                    street
-                                    city
-                                    region {
-                                        region_code
-                                        region
-                                    }
-                                    postcode
-                                    country_code
-                                    telephone
-                                }
-                            }
-                        }
-                    `
+                    query: payload.getCustomer()
                 },
                 headers: {
                     Authorization: `Bearer ${token}`,

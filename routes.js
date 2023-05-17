@@ -16,11 +16,11 @@ export function getRoutes(themeDir = __dirname) {
     path: '/c/:slug_1/:slug_2?/:slug_3?/:slug_4?/:slug_5?',
     component: path.resolve(themeDir, 'pages/Category.vue'),
   },
-  // {
-  //   name: 'my-account',
-  //   path: '/my-account/:pageName?',
-  //   component: path.resolve(themeDir, 'pages/MyAccount.vue'),
-  // },
+  {
+    name: 'my-account',
+    path: '/my-account/:pageName?',
+    component: path.resolve(themeDir, 'pages/MyAccount.vue'),
+  },
   // {
   //   name: 'checkout',
   //   path: '/checkout',

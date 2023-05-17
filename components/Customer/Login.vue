@@ -1,6 +1,7 @@
 <template>
     <b-nav-item-dropdown :text="name" right 
         v-if="isLoggedIn()">
+            <b-dropdown-item to="/my-account">My Account</b-dropdown-item>
             <b-dropdown-item to="/logout">Logout</b-dropdown-item>
     </b-nav-item-dropdown>
     <b-nav-item

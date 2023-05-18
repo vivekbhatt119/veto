@@ -1,5 +1,6 @@
 export const state = () => ({
     registry: {
+        categoryTree: null,
         currentCategory: null,
         currentProduct: null,
         currentCustomer: null,
@@ -8,10 +9,21 @@ export const state = () => ({
         cartId: null,
         cart: null,
         fullScreenLoading: false,
+        currentStore: null,
+        availableStores: [],
     }
 })
 
 export const mutations = {
+    setCurrentStore(state, store) {
+        state.registry.currentStore = store
+    },
+    setCategoryTree(state, categoryTree) {
+        state.registry.categoryTree = categoryTree
+    },
+    setAvailableStores(state, availableStores) {
+        state.registry.availableStores = availableStores
+    },
     setCurrentCategory(state, category) {
         state.registry.currentCategory = category
     },

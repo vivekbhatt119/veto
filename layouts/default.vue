@@ -21,6 +21,19 @@
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
+          <b-nav-item-dropdown
+            :text="currentStore.store_name"
+            left
+            v-if="storeViews.length > 0"
+          >
+            <b-dropdown-item
+              v-for="store in storeViews"
+              :key="store.store_code"
+              active-class="active"
+              @click="setStore(store)"
+              >{{ store.store_name }}</b-dropdown-item
+            >
+          </b-nav-item-dropdown>
           <login />
           <b-nav-item
             active-class="active"
@@ -33,6 +46,7 @@
     <b-container>
         <toaster/>
         <Nuxt />
+        <pre>{{ storeViews }}</pre>
     </b-container>
   </div>
 </template>
@@ -45,31 +59,31 @@ import Toaster from '../components/toaster.vue';
 import payload from '../payload';
 export default {
     components: { NavTree, Login, Cart, Toaster },
-    data() {
-        return {
-            categoryList: [],
-        };
-    },
     computed: {
         categories: function () {
-            return this.categoryList.sort((a, b) => a.position - b.position);
+          let c = JSON.parse(JSON.stringify(this.$store.state.registry.categoryTree));
+          return c.sort((a, b) => a.position - b.position);
         },
         loading() {
             return this.$store.state.registry.fullScreenLoading;
         },
+        storeViews() {
+            let storeViews = [];
+            this.$store.state.registry.availableStores.forEach(mStore => {
+              if (this.currentStore.store_code != mStore.store_code) {
+                storeViews.push(mStore);
+              } 
+            });
+            return storeViews;
+        },
+        currentStore() {
+            return this.$store.state.registry.currentStore;
+        },
     },
-    async created() {
-        const categories = await this.$axios({
-            method: "post",
-            url: this.$axios.defaults.baseURL,
-            data: {
-                query: payload.categoryList(),
-            },
-            headers: {
-                Authorization: `Bearer 2ic383bgxtr97q8s0y0bq99q55vaelg4`,
-            },
-        });
-        this.categoryList = categories.data.data.categoryList;
+    methods: {
+      setStore(mStore) {
+        this.$store.commit("setCurrentStore", mStore);
+      }
     }
 };
 </script>

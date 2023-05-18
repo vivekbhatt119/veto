@@ -306,9 +306,8 @@ export default {
                 // if guest cart available
                 if (this.cart || this.cartId) {
                     if (!this.cart) {
-                        // load cart with this.cartId
+                        //TODO: load cart with this.cartId
                     }
-                    // if items.length then merge guest cart with customerCart
                     if (this.cart.items.length) {
                         this.mergeCart(res.data.data.customerCart.id);
                     }

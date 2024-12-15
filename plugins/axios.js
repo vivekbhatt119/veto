@@ -1,15 +1,12 @@
 import payload from '../payload';
 export default async function ({ $axios, store }) {
     if(!store.state.registry.currentStore) {
+        const params = new URLSearchParams({
+            query: payload.availableStores()
+          }).toString();
         const stores = await $axios({
-            method: "post",
-            url: $axios.defaults.baseURL,
-            data: {
-                query: payload.availableStores(),
-            },
-            headers: {
-                Authorization: `Bearer 2ic383bgxtr97q8s0y0bq99q55vaelg4`,
-            },
+            method: "get",
+            url: `${$axios.defaults.baseURL}?${params}`
         });
         let currentStore = '';
         stores.data.data.availableStores.forEach(element => {
@@ -17,12 +14,13 @@ export default async function ({ $axios, store }) {
                 currentStore = element;
             }
         });
-        console.log(currentStore);
         store.commit("setAvailableStores", stores.data.data.availableStores);
         store.commit("setCurrentStore", currentStore);
     }
     $axios.onRequest(config => {
         let currentStore = store.state.registry.currentStore;
+        let token = store.state.registry.customerToken;
         config.headers['Store'] = currentStore.store_code;
+        config.headers['Authorization'] = `Bearer ${token}`;
     })
 }

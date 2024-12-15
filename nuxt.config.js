@@ -28,7 +28,8 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     '~/plugins/axios.js',
-    '~/plugins/category.js'
+    '~/plugins/category.js',
+    '~/plugins/graphqlCall.js'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -47,7 +48,7 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseURL: 'http://m242.local.com/graphql',
+    baseURL: 'http://local.arb.com/graphql',
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

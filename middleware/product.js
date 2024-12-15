@@ -2,13 +2,15 @@ import payload from "../payload";
 
 export default async function ({ store, route, redirect, $axios }) {
     let url = route.params.slug;
+    let token = store.state.registry.customerToken;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
     try {
-        const response = await $axios({
-            method: 'post',
-            url: $axios.defaults.baseURL,
-            data: {
-            query: payload.urlResolver(url),
-            },
+        let params = new URLSearchParams({
+            query: payload.urlResolver(url)
+        }).toString();
+
+        let response = await $axios.get(`${$axios.defaults.baseURL}?${params}`, {
+            headers: headers,
         });
         if (response.data.errors) {
             store.commit("addErrorMessage", response.data.errors[0]['message']);
@@ -20,12 +22,13 @@ export default async function ({ store, route, redirect, $axios }) {
         }
 
         let id = route.params.id;
-        const product = await $axios({
-            method: 'post',
-            url: $axios.defaults.baseURL,
-            data: {
-                query: payload.products(id),
-            },
+
+        params = new URLSearchParams({
+            query: payload.products(id)
+        }).toString();
+
+        const product = await $axios.get(`${$axios.defaults.baseURL}?${params}`, {
+            headers: headers,
         });
 
         if (product.data.errors) {
@@ -40,7 +43,7 @@ export default async function ({ store, route, redirect, $axios }) {
         }
 
         store.commit("setCurrentProduct", product.data.data.products.items[0]);
-    } catch(exception) {
+    } catch (exception) {
         console.log(exception);
         return redirect('/');
     }

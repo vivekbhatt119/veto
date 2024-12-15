@@ -207,16 +207,8 @@ export default {
             short_description {
                 html
             }
+            size
             sku
-            u_fit
-            arb_fit
-            no_sell
-            online_only
-            fabricated_product
-            fitment_id
-            fabricated_product
-            fitting_difficulty
-            fitting_charge
             small_image {
                 disabled
                 label
@@ -249,92 +241,81 @@ export default {
             applied_coupons {
                 code
             }
+            available_payment_methods {
+                code
+                title
+            }
+            billing_address {
+                city
+                company
+                country {
+                    code
+                    label
+                }
+                firstname
+                lastname
+                postcode
+                region {
+                    code
+                    label
+                    region_id
+                }
+                street
+                telephone
+            }
             email
+            gift_message {
+                from
+                message
+                to
+            }
             id
             is_virtual
-            itemsV2 {
-                total_count
-                items {
-                    uid
-                    quantity
-                    consent
-                    is_compatible
-                    ... on ConfigurableCartItem {
-                        configurable_options {
-                            value_label
-                            option_label
-                            configurable_product_option_value_uid
-                            configurable_product_option_uid
+            items {
+                uid
+                quantity
+                ... on ConfigurableCartItem {
+                    configurable_options {
+                        value_label
+                        option_label
+                        configurable_product_option_value_uid
+                        configurable_product_option_uid
+                    }
+                }
+                prices {
+                    total_item_discount {
+                        value
+                    }
+                    price {
+                        value
+                        currency
+                    }
+                    discounts {
+                        label
+                        amount {
+                            value
                         }
                     }
-                    prices {
-                        discounts {
-                            amount {
-                                currency
-                                value
-                            }
-                            coupon {
+                }
+                product {
+                    name
+                    sku
+                    thumbnail {
+                        label
+                        url
+                    }
+                    ... on ConfigurableProduct {
+                        variants {
+                            attributes {
                                 code
+                                label
+                                uid
+                                value_index
                             }
-                            label
-                        }
-                        fixed_product_taxes {
-                            amount {
-                                currency
-                                value
-                            }
-                            label
-                        }
-                        price {
-                            currency
-                            value
-                        }
-                        price_including_tax {
-                            currency
-                            value
-                        }
-                        row_total {
-                            currency
-                            value
-                        }
-                        row_total_including_tax {
-                            currency
-                            value
-                        }
-                        total_item_discount {
-                            currency
-                            value
-                        }
-                    }
-                    product {
-                        name
-                        sku
-                        u_fit
-                        arb_fit
-                        no_sell
-                        online_only
-                        fabricated_product
-                        fitment_id
-                        fabricated_product
-                        fitting_difficulty
-                        fitting_charge
-                        thumbnail {
-                            label
-                            url
-                        }
-                        ... on ConfigurableProduct {
-                            variants {
-                                attributes {
-                                    code
+                            product {
+                                thumbnail {
+                                    url
                                     label
-                                    uid
-                                    value_index
-                                }
-                                product {
-                                    thumbnail {
-                                        url
-                                        label
-                                    }
                                 }
                             }
                         }
@@ -372,6 +353,61 @@ export default {
                     currency
                     value
                 }
+            }
+            selected_payment_method {
+                code
+                purchase_order_number
+                title
+            }
+            shipping_addresses {
+                available_shipping_methods {
+                    amount {
+                        value
+                        currency
+                    }
+                    available
+                    carrier_code
+                    carrier_title
+                    error_message
+                    method_code
+                    method_title
+                    price_excl_tax {
+                        value
+                        currency
+                    }
+                    price_incl_tax {
+                        value
+                        currency
+                    }
+                }
+                city
+                company
+                country {
+                    code
+                    label
+                }
+                customer_notes
+                firstname
+                lastname
+                pickup_location_code
+                postcode
+                region {
+                    code
+                    label
+                    region_id
+                }
+                selected_shipping_method {
+                    amount {
+                        value
+                        currency
+                    }
+                    carrier_code
+                    carrier_title
+                    method_code
+                    method_title
+                }
+                street
+                telephone
             }
             total_quantity
         `;

@@ -308,7 +308,7 @@ export default {
                     if (!this.cart) {
                         //TODO: load cart with this.cartId
                     }
-                    if (this.cart.items.length) {
+                    if (this.cart.itemsV2.length) {
                         this.mergeCart(res.data.data.customerCart.id);
                     }
                 }

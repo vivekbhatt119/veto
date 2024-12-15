@@ -1,12 +1,26 @@
 <template>
   <div>
     <div class="loading" v-if="loading"></div>
-    <b-navbar type="light" variant="light">
+    <b-navbar type="light" variant="light" toggleable="lg" class="mb-5">
       <nuxt-link active-class="active" to="/" class="navbar-brand">
-        IDS
+        <img src="~/assets/logo.png" />
       </nuxt-link>
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-collapse id="nav-collapse" is-nav>
-        <b-navbar-nav class="m-auto">
+        <b-navbar-nav>
+          <b-nav-item-dropdown text="Product" left>
+            <b-dropdown-item
+              v-for="category in categories"
+                :key="category.uid"
+                active-class="active"
+                :to="'/c/' + category.url_path + category.url_suffix"
+            >{{ category.name }}
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+
+        <!-- Right aligned nav items -->
+        <b-navbar-nav class="ml-auto">
           <b-nav-form>
             <b-form-input
               size="sm"
@@ -17,10 +31,6 @@
               >Search</b-button
             >
           </b-nav-form>
-        </b-navbar-nav>
-
-        <!-- Right aligned nav items -->
-        <b-navbar-nav class="ml-auto">
           <b-nav-item-dropdown
             :text="currentStore.store_name"
             left
@@ -35,18 +45,14 @@
             >
           </b-nav-item-dropdown>
           <login />
-          <b-nav-item
-            active-class="active"
-            to="/cart"
-          >Cart</b-nav-item>
+          <cart />
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-    <nav-tree :categories="categories"/>
     <b-container>
         <toaster/>
         <Nuxt />
-        <pre>{{ storeViews }}</pre>
+        <!-- <pre>{{ storeViews }}</pre> -->
     </b-container>
   </div>
 </template>

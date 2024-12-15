@@ -14,11 +14,8 @@
 
                     <b-collapse id="filter-collapse" is-nav>
                         <b-navbar-nav v-if="category.children_count != 0">
-                            <b-nav-item
-                                v-for="child in category.children"
-                                :to="'/c/' + child.url_path + child.url_suffix"
-                                :key="child.uid"
-                                >
+                            <b-nav-item v-for="child in category.children"
+                                :to="'/c/' + child.url_path + child.url_suffix" :key="child.uid">
                                 {{ child.name }}
                             </b-nav-item>
                         </b-navbar-nav>
@@ -31,14 +28,10 @@
                         </b-navbar-nav>
                     </b-collapse>
                 </b-navbar>
-                
+
                 <b-modal size="xl" id="my-modal" hide-footer scrollable title="Filter" v-if="aggregations.length">
-                    <filter-renderer
-                        :aggregations="aggregations"
-                        :eqFilter="eqFilter"
-                        :inFilter="inFilter"
-                        :rangeFilter="rangeFilter"
-                        @apply-filter="applyFilter" />
+                    <filter-renderer :aggregations="aggregations" :eqFilter="eqFilter" :inFilter="inFilter"
+                        :rangeFilter="rangeFilter" @apply-filter="applyFilter" />
                 </b-modal>
             </b-col>
         </b-row>
@@ -53,15 +46,8 @@
         </div>
         <b-row v-if="products.total_count > 0">
             <b-col>
-                <b-pagination
-                v-model="currentPage"
-                :total-rows="products.total_count"
-                :per-page="pageSize"
-                first-text="First"
-                prev-text="Prev"
-                next-text="Next"
-                last-text="Last"
-                ></b-pagination>
+                <b-pagination v-model="currentPage" :total-rows="products.total_count" :per-page="pageSize"
+                    first-text="First" prev-text="Prev" next-text="Next" last-text="Last"></b-pagination>
             </b-col>
         </b-row>
     </div>
@@ -75,7 +61,7 @@ import Item from '../components/List/Item.vue';
 import BlankItem from '../components/List/BlankItem.vue';
 import FilterRenderer from '../components/List/FilterRenderer.vue';
 export default {
-  components: { Item, BlankItem, FilterRenderer },
+    components: { Item, BlankItem, FilterRenderer },
     middleware: ["category"],
     name: "Category",
     data() {
@@ -105,7 +91,7 @@ export default {
             if (filter.hasOwnProperty('category_uid')) {
                 filter.category_uid.in.push(this.$store.state.registry.currentCategory.uid);
             } else {
-                filter.category_uid = {"in": [this.$store.state.registry.currentCategory.uid]};
+                filter.category_uid = { "in": [this.$store.state.registry.currentCategory.uid] };
             }
             this.filter = filter;
         },
@@ -120,80 +106,75 @@ export default {
                 items: []
             };
             this.isLoading = true;
-            const products = await this.$axios({
-                method: "post",
-                url: this.$axios.defaults.baseURL,
-                data: {
-                    query: `query($filter: ProductAttributeFilterInput!, $pageSize: Int!, $currentPage: Int!)
-                    {
-                        products(
-                            pageSize: $pageSize,
-                            currentPage: $currentPage,
-                            search: "",
-                            filter: $filter,
-                            sort: {},
-                        ) {
-                            aggregations {
-                                    label
+            let query = `query($filter: ProductAttributeFilterInput!, $pageSize: Int!, $currentPage: Int!)
+            {
+                products(
+                    pageSize: $pageSize,
+                    currentPage: $currentPage,
+                    search: "",
+                    filter: $filter,
+                    sort: {},
+                ) {
+                    aggregations {
+                            label
+                            attribute_code
+                            count
+                            options {
+                                label
+                                value
+                                count
+                            }
+                        }
+                        total_count
+                        items {
+                            ... on ConfigurableProduct {
+                                configurable_options {
                                     attribute_code
-                                    count
-                                    options {
+                                    label
+                                    values {
+                                        uid
                                         label
+                                        swatch_data {
+                                            value
+                                        }
+                                    }
+                                }
+                            }
+                            name
+                            sku
+                            url_key
+                            url_suffix
+                            thumbnail {
+                                url
+                                label
+                            }
+                            price_range {
+                                minimum_price {
+                                    final_price {
                                         value
-                                        count
+                                        currency
                                     }
-                                }
-                                total_count
-                                items {
-                                    ... on ConfigurableProduct {
-                                        configurable_options {
-                                            attribute_code
-                                            label
-                                            values {
-                                                uid
-                                                label
-                                                swatch_data {
-                                                    value
-                                                }
-                                            }
-                                        }
+                                    regular_price {
+                                        value
+                                        currency
                                     }
-                                    name
-                                    sku
-                                    url_key
-                                    url_suffix
-                                    thumbnail {
-                                        url
-                                        label
-                                    }
-                                    price_range {
-                                        minimum_price {
-                                            final_price {
-                                                value
-                                                currency
-                                            }
-                                            regular_price {
-                                                value
-                                                currency
-                                            }
-                                        }
-                                    }
-                                }
-                                page_info {
-                                    page_size
-                                    current_page
-                                    total_pages
                                 }
                             }
                         }
-                    `,
-                    variables: {
-                        "filter": this.filter,
-                        "pageSize": this.pageSize,
-                        "currentPage": this.currentPage
+                        page_info {
+                            page_size
+                            current_page
+                            total_pages
+                        }
                     }
-                },
-            });
+                }
+            `;
+            let variables = {
+                "filter": this.filter,
+                "pageSize": this.pageSize,
+                "currentPage": this.currentPage
+            }
+            const products = await this.$graphqlCall(query, variables, 'GET')
             this.products = products.data.data.products;
             this.isLoading = false;
         }
@@ -204,7 +185,7 @@ export default {
         },
         aggregations() {
             if (this.products.hasOwnProperty('aggregations')) {
-                return this.products.aggregations.filter(x=>(x.attribute_code != 'category_id'))
+                return this.products.aggregations.filter(x => (x.attribute_code != 'category_id'))
             }
         }
     },
@@ -221,16 +202,15 @@ export default {
     },
     watch: {
         currentPage() {
-            window.scrollTo(0,0);
+            window.scrollTo(0, 0);
             this.getProducts()
         },
         filter() {
-            window.scrollTo(0,0);
+            window.scrollTo(0, 0);
             this.getProducts()
         }
     },
 };
 </script>
 
-<style>
-</style>
+<style></style>

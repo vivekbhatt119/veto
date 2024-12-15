@@ -3,13 +3,15 @@ import payload from "../payload";
 export default async function ({ store, route, redirect, $axios }) {
     let url = route.fullPath;
     url = url.replace('/c/', '');
+    let token = store.state.registry.customerToken;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
     try {
-        const response = await $axios({
-            method: 'post',
-            url: $axios.defaults.baseURL,
-            data: {
-            query: payload.urlResolver(url),
-            },
+        let params = new URLSearchParams({
+            query: payload.urlResolver(url)
+        }).toString();
+
+        let response = await $axios.get(`${$axios.defaults.baseURL}?${params}`, {
+            headers: headers,
         });
         if (response.data.errors) {
             store.commit("addErrorMessage", response.data.errors[0]['message']);
@@ -21,12 +23,12 @@ export default async function ({ store, route, redirect, $axios }) {
         }
 
         let id = response.data.data.urlResolver.entity_uid;
-        const category = await $axios({
-            method: 'post',
-            url: $axios.defaults.baseURL,
-            data: {
-            query: payload.categories(id),
-            },
+        params = new URLSearchParams({
+            query: payload.categories(id)
+        }).toString();
+
+        const category = await $axios.get(`${$axios.defaults.baseURL}?${params}`, {
+            headers: headers,
         });
 
         if (category.data.errors) {
